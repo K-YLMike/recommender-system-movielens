@@ -1,10 +1,16 @@
+<div align="center">
+
 # MovieLens Two-Stage Recommender
 
-![Python](https://img.shields.io/badge/python-3.11-blue)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.4-EE4C2C)
-![FAISS](https://img.shields.io/badge/FAISS-ANN-4B8BBE)
-![LightGBM](https://img.shields.io/badge/LightGBM-LambdaRank-9ACD32)
-![License](https://img.shields.io/badge/license-MIT-green)
+*A retrieval-then-ranking recommender that treats evaluation, not model count, as the hard part.*
+
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.4-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
+![FAISS](https://img.shields.io/badge/FAISS-IVF%20%2F%20HNSW-4B8BBE?style=for-the-badge)
+![LightGBM](https://img.shields.io/badge/LightGBM-LambdaRank-2E8B57?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-3DA639?style=for-the-badge)
+
+</div>
 
 A retrieval-then-ranking recommender on MovieLens, built in the shape a real
 industrial system takes: a cheap first stage that narrows a large catalog to a few
@@ -20,6 +26,11 @@ model help once you look past the aggregate score, and can the evaluation itself
 trusted. Strong baselines come first (popularity, then BPR matrix factorization),
 followed by a two-tower retriever with a content tower, and a gradient-boosted
 reranker.
+
+> [!NOTE]
+> The deliverable of this project is a set of honest findings, not a leaderboard
+> row. Several results cut against the naive expectation, and each is reported
+> with its seed variance so a difference is only called real when it clears the noise.
 
 **Stack.** PyTorch (two-tower retrieval), FAISS with IVF and HNSW (approximate
 nearest-neighbor search), LightGBM (LambdaRank reranker), and sentence-transformers
@@ -65,9 +76,10 @@ larger dataset by setting `dataset: ml-25m` in `configs/config.yaml`.
 MovieLens-1M, averaged over three seeds. The noise rule is enforced in code
 (`src/utils/stats.py`).
 
-**Negative sampling is the decisive factor, not the architecture.** The same
-two-tower reaches Recall@10 of 0.047 with a logQ popularity correction, but only
-0.009 with plain in-batch negatives, a 5x difference from a single design choice.
+> [!IMPORTANT]
+> **Negative sampling is the decisive factor, not the architecture.** The same
+> two-tower reaches Recall@10 of 0.047 with a logQ popularity correction, but only
+> 0.009 with plain in-batch negatives, a 5x difference from a single design choice.
 
 **The two-tower only edges a strong baseline.** The logQ two-tower reaches 0.047
 against 0.043 for BPR matrix factorization. On clean MovieLens a well-tuned classic
