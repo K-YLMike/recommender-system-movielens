@@ -1,0 +1,23 @@
+# Pinned to the versions this project was validated on (Python 3.11).
+# These are portable defaults for a LOCAL / Colab (non-HPC) run.
+#
+# torch: the validated build was 2.4.1+cu121 on the cluster. The bare "2.4.1"
+#   below lets pip pick the right CPU/GPU wheel for your machine. For a specific
+#   CUDA build, install torch separately, e.g.:
+#     pip install torch==2.4.1 --index-url https://download.pytorch.org/whl/cu121
+#
+# faiss: use faiss-cpu everywhere it just works. If you have a CUDA GPU and want
+#   GPU search, replace it with:  faiss-gpu-cu12==1.14.1.post1
+torch==2.4.1
+faiss-cpu==1.14.1.post1
+lightgbm==4.6.0
+sentence-transformers==5.6.0
+transformers==5.13.0
+numpy==2.4.6
+pandas==3.0.3
+pyarrow==24.0.0
+scipy==1.17.1
+scikit-learn==1.9.0
+pyyaml==6.0.3
+tqdm==4.68.4
+matplotlib==3.11.0

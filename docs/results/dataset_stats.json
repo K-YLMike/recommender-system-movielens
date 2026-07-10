@@ -1,0 +1,29 @@
+{
+  "dataset": "ml-1m",
+  "density": 0.04071690571997378,
+  "items_per_user": {
+    "max": 2029.0,
+    "mean": 149.75677923806356,
+    "median": 86.0,
+    "min": 2.0,
+    "p90": 357.0,
+    "p99": 833.3999999999978
+  },
+  "n_cold_items": 544,
+  "n_cold_users": 22,
+  "n_interactions": 900188,
+  "n_items": 3678,
+  "n_test_positive_interactions": 54452,
+  "n_users": 6011,
+  "popularity_gini": 0.6381841944910096,
+  "sparsity": 0.9592830942800262,
+  "time_span_days": 248.02586805555555,
+  "users_per_item": {
+    "max": 3275.0,
+    "mean": 244.74932028276237,
+    "median": 110.0,
+    "min": 1.0,
+    "p90": 662.3000000000002,
+    "p99": 1652.4400000000005
+  }
+}

@@ -1,0 +1,87 @@
+# =============================================================================
+# MovieLens two-stage recommender -- pipeline configuration
+# -----------------------------------------------------------------------------
+# One file drives everything. Switch `dataset` between ml-1m (fast dev) and
+# ml-25m (final numbers). Every path is derived from `paths.data_root`, which
+# defaults to the PROJECT DIRECTORY itself -- so raw data, checkpoints, the model
+# cache and outputs all live under /home/<user>/recommender_system_movielens
+# alongside the code. Override with the RSM_DATA_ROOT env var (e.g. to use
+# scratch) only if the home-directory quota becomes a problem.
+# =============================================================================
+
+# Which dataset variant to run: "ml-1m" (development) or "ml-25m" (reporting).
+dataset: ml-1m
+
+# RNG seeds for multi-seed ablations. Report mean +/- std across these; a delta
+# smaller than the seed std is treated as "within noise", never a result.
+seeds: [0, 1, 2]
+
+paths:
+  # Big-data root. Leave null to default to the project directory (recommended,
+  # per the "keep everything under the project dir" setup). Set RSM_DATA_ROOT to
+  # override, e.g. /scratch/$USER/recommender_system_movielens.
+  data_root: null
+
+data:
+  # Ratings >= this become implicit positives for retrieval.
+  positive_rating_threshold: 4.0
+  # Fraction of the most recent interactions held out as the temporal test set.
+  test_fraction: 0.1
+  # Users/items with <= this many train interactions are "cold".
+  cold_threshold: 5
+  # Split strategy: "temporal" (leakage-free, default) or "random" (for the
+  # leakage study's second pass -- see README). Only temporal is used by default.
+  split_mode: temporal
+
+eval:
+  top_ks: [10, 20]
+
+baseline_pop:
+  # Prior pseudo-count for the Bayesian popularity shrink.
+  prior_strength: 20.0
+
+content:
+  # Pretrained sentence encoder for the content tower (downloaded once to HF_HOME).
+  model_name: sentence-transformers/all-MiniLM-L6-v2
+  use_genres_in_text: true
+  shard_size: 4096      # items per resumable inference shard
+  batch_size: 256
+
+retrieval_mf:
+  dim: 64
+  lr: 0.01
+  weight_decay: 1.0e-6
+  batch_size: 4096
+  total_steps: 20000
+  ckpt_every_steps: 2000
+  log_every_steps: 500
+
+twotower:
+  dim: 64
+  temperature: 0.05
+  lr: 0.005
+  batch_size: 2048
+  history_len: 30           # recent items pooled by the user tower
+  total_steps: 30000
+  ckpt_every_steps: 2000    # <= keep small enough that <1h always checkpoints
+  log_every_steps: 500
+  # Negative-sampling ablation variants (the central, direction-agnostic study).
+  variants: [in_batch, hard, logq]
+  headline_variant: logq
+  extra_negatives: 2048     # extra shared negatives for the "hard" variant
+  hard_pool: 8192           # sampled pool from which hard negatives are mined
+
+ranking_gbdt:
+  neg_per_pos: 4
+  max_train_users: 20000
+  candidate_pool: 200       # stage-1 candidates reranked per user
+  learning_rate: 0.05
+  num_leaves: 31
+  min_data_in_leaf: 50
+  num_boost_round: 200
+
+ann:
+  nlist: 256
+  hnsw_m: 32
+  ivf_nprobe: [1, 4, 8, 16, 32, 64]
+  hnsw_efsearch: [8, 16, 32, 64, 128]
