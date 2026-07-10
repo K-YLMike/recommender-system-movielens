@@ -27,24 +27,17 @@ trusted. Strong baselines come first (popularity, then BPR matrix factorization)
 followed by a two-tower retriever with a content tower, and a gradient-boosted
 reranker.
 
-> [!NOTE]
-> The deliverable of this project is a set of honest findings, not a leaderboard
-> row. Several results cut against the naive expectation, and each is reported
-> with its seed variance so a difference is only called real when it clears the noise.
+**Stack.** PyTorch (two-tower retrieval), FAISS with IVF and HNSW (approximate
+nearest-neighbor search), LightGBM (LambdaRank reranker), and sentence-transformers
+(pretrained title embeddings for the content tower), trained on implicit-feedback
+MovieLens data.
 
-> [!TIP]
-> **Stack.** PyTorch (two-tower retrieval), FAISS with IVF and HNSW (approximate
-> nearest-neighbor search), LightGBM (LambdaRank reranker), and sentence-transformers
-> (pretrained title embeddings for the content tower), trained on implicit-feedback
-> MovieLens data.
-
-> [!NOTE]
-> **Evaluation protocol.** A global temporal split (train on the past, test on the
-> future) to avoid leakage; every metric averaged over three seeds and reported as
-> mean plus or minus standard deviation; and a guardrail that reports any difference
-> smaller than the seed noise as "within noise" rather than as a result. Metrics are
-> also broken down by head, tail, cold-item, cold-user, and catalog-coverage segments
-> so that aggregate numbers do not hide where a model actually helps.
+**Evaluation protocol.** A global temporal split (train on the past, test on the
+future) to avoid leakage; every metric averaged over three seeds and reported as
+mean plus or minus standard deviation; and a guardrail that reports any difference
+smaller than the seed noise as "within noise" rather than as a result. Metrics are
+also broken down by head, tail, cold-item, cold-user, and catalog-coverage segments
+so that aggregate numbers do not hide where a model actually helps.
 
 ## Getting Started
 
@@ -78,10 +71,9 @@ larger dataset by setting `dataset: ml-25m` in `configs/config.yaml`.
 MovieLens-1M, averaged over three seeds. The noise rule is enforced in code
 (`src/utils/stats.py`).
 
-> [!IMPORTANT]
-> **Negative sampling is the decisive factor, not the architecture.** The same
-> two-tower reaches Recall@10 of 0.047 with a logQ popularity correction, but only
-> 0.009 with plain in-batch negatives, a 5x difference from a single design choice.
+**Negative sampling is the decisive factor, not the architecture.** The same
+two-tower reaches Recall@10 of 0.047 with a logQ popularity correction, but only
+0.009 with plain in-batch negatives, a 5x difference from a single design choice.
 
 **The two-tower only edges a strong baseline.** The logQ two-tower reaches 0.047
 against 0.043 for BPR matrix factorization. On clean MovieLens a well-tuned classic
