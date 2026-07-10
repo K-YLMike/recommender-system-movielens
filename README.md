@@ -17,7 +17,34 @@ compared under one protocol: a temporal split to avoid leakage, three seeds, and
 rule that any difference smaller than the seed noise is reported as "within noise"
 rather than sold as a win.
 
-## What the results say
+## Getting Started
+
+```bash
+git clone https://github.com/K-YLMike/recommender-system-movielens.git
+cd recommender-system-movielens
+
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+bash data/download.sh ml-1m          # download MovieLens once, into ./raw
+
+python scripts/run_data_prep.py
+python scripts/run_baseline_pop.py
+python scripts/run_content_features.py
+python scripts/run_retrieval_mf.py
+python scripts/run_retrieval_twotower.py
+python scripts/run_evaluate.py
+python scripts/run_ranking_gbdt.py
+
+python plots.py --results-dir ml-1m/results
+```
+
+Results are written to `ml-1m/results/`. On a CPU the MovieLens-1M run finishes in
+a few minutes; only the two-tower really benefits from a GPU (with one, swap
+`faiss-cpu` for `faiss-gpu-cu12` and install a CUDA torch build). Switch to the
+larger dataset by setting `dataset: ml-25m` in `configs/config.yaml`.
+
+## Results
 
 MovieLens-1M, averaged over 3 seeds. The noise rule is enforced in code
 (`src/utils/stats.py`).
@@ -87,41 +114,17 @@ The pipeline is crash-safe and resumable: each stage writes outputs atomically a
 marks completion with a `_DONE.json` file, and training checkpoints the model,
 optimizer, and RNG state so a run resumes exactly where it stopped.
 
-## Run it (local or Colab, no cluster needed)
+## Future Work
 
-```bash
-git clone https://github.com/K-YLMike/recommender-system-movielens.git
-cd recommender-system-movielens
-
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-
-bash data/download.sh ml-1m          # download MovieLens once, into ./raw
-
-python scripts/run_data_prep.py
-python scripts/run_baseline_pop.py
-python scripts/run_content_features.py
-python scripts/run_retrieval_mf.py
-python scripts/run_retrieval_twotower.py
-python scripts/run_evaluate.py
-python scripts/run_ranking_gbdt.py
-
-python plots.py --results-dir ml-1m/results
-```
-
-Results are written to `ml-1m/results/`. On a CPU the MovieLens-1M run finishes in
-a few minutes; only the two-tower really benefits from a GPU (with one, swap
-`faiss-cpu` for `faiss-gpu-cu12` and install a CUDA torch build). Switch to the
-larger dataset by setting `dataset: ml-25m` in `configs/config.yaml`.
-
-## What a production system would add
-
-This is the offline skeleton, not the scale. A production version would add
-streaming features, sharded and quantized ANN over billions of items,
-multi-objective ranking that weighs engagement against diversity and freshness,
-correction for position bias and delayed feedback, online A/B testing instead of a
-static split, and continuous retraining.
+This is the offline skeleton of a recommender, and there is a clear path to grow
+it. The immediate next step is MovieLens-25M, where the content tower's
+cold-start value should actually show up. Beyond that, the natural extensions are
+streaming and near-real-time features, approximate search over much larger
+catalogs, multi-objective ranking that balances relevance with diversity and
+freshness, correction for position and selection bias, and moving from a static
+offline split to online A/B testing with continuous retraining.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Released under the MIT License: free to use, modify, and distribute, with no
+warranty. Full text in [LICENSE](LICENSE).
